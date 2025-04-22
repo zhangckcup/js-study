@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <!-- 修复1: 添加字符集声明 -->
+    <meta charset="UTF-8">
+    <!-- 修复2: 添加视口元标签 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #events { margin-top: 20px; border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; }
+    </style>
+</head>
+<body>
+    <h1>Server-Sent Events Demo</h1>
+    <button id="connect">Connect</button>
+    <button id="disconnect" disabled>Disconnect</button>
+    <div id="events"></div>
+
+    <script>
+        let eventSource;
+        const eventsDiv = document.getElementById('events');
+        
+        document.getElementById('connect').addEventListener('click', () => {
+            eventSource = new EventSource('/events');
+            
+            eventSource.onopen = () => {
+                addEvent('Connection opened');
+                document.getElementById('connect').disabled = true;
+                document.getElementById('disconnect').disabled = false;
+            };
+            
+            eventSource.onmessage = (e) => {
+                addEvent(`Message: ${e.data}`);
+            };
+            
+            eventSource.onerror = () => {
+                addEvent('Connection error');
+                eventSource.close();
+                document.getElementById('connect').disabled = false;
+                document.getElementById('disconnect').disabled = true;
+            };
+        });
+        
+        document.getElementById('disconnect').addEventListener('click', () => {
+            if (eventSource) {
+                eventSource.close();
+                addEvent('Connection closed');
+                document.getElementById('connect').disabled = false;
+                document.getElementById('disconnect').disabled = true;
+            }
+        });
+        
+        function addEvent(text) {
+            const p = document.createElement('p');
+            p.textContent = text;
+            eventsDiv.appendChild(p);
+            eventsDiv.scrollTop = eventsDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Worker Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #result { margin-top: 20px; border: 1px solid #ccc; padding: 10px; height: 100px; overflow-y: scroll; }
+    </style>
+</head>
+<body>
+    <h1>Web Worker Demo</h1>
+    <button id="startWorker">Start Worker</button>
+    <button id="stopWorker" disabled>Stop Worker</button>
+    <div id="result"></div>
+
+    <script>
+        let worker;
+        const resultDiv = document.getElementById('result');
+        
+        document.getElementById('startWorker').addEventListener('click', () => {
+            worker = new Worker('worker.js');
+            
+            worker.onmessage = (e) => {
+                resultDiv.innerHTML += `<p>Result: ${e.data}</p>`;
+                resultDiv.scrollTop = resultDiv.scrollHeight;
+            };
+            
+            worker.onerror = (error) => {
+                resultDiv.innerHTML += `<p style="color:red">Error: ${error.message}</p>`;
+            };
+            
+            document.getElementById('startWorker').disabled = true;
+            document.getElementById('stopWorker').disabled = false;
+            
+            // 发送数据给Worker处理
+            worker.postMessage(1000000); // 计算1到1000000的和
+        });
+        
+        document.getElementById('stopWorker').addEventListener('click', () => {
+            if (worker) {
+                worker.terminate();
+                worker = null;
+                resultDiv.innerHTML += '<p>Worker stopped</p>';
+                document.getElementById('startWorker').disabled = false;
+                document.getElementById('stopWorker').disabled = true;
+            }
+        });
+    </script>
+</body>
+</html>
