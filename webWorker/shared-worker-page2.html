@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Worker Page 2</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #result { margin-top: 20px; }
+        #connections { color: #666; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Shared Worker Page 2</h1>
+    <input type="number" id="number" placeholder="输入一个数字">
+    <button id="calculate">计算平方</button>
+    <div id="result"></div>
+    <div id="connections"></div>
+
+    <script>
+        const worker = new SharedWorker('shared-worker.js');
+        
+        worker.port.onmessage = function(e) {
+            if(typeof e.data === 'string' && e.data.includes('已连接客户端数')) {
+                document.getElementById('connections').textContent = e.data;
+            } else {
+                document.getElementById('result').textContent = `计算结果: ${e.data}`;
+            }
+        };
+        
+        document.getElementById('calculate').addEventListener('click', () => {
+            const num = parseInt(document.getElementById('number').value);
+            if (num) {
+                worker.port.postMessage(num);
+            }
+        });
+        
+        worker.port.start();
+    </script>
+</body>
+</html>
