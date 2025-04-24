@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Worker Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #status { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Service Worker Demo</h1>
+    <button id="register">注册Service Worker</button>
+    <button id="unregister">注销Service Worker</button>
+    <div id="status"></div>
+
+    <script>
+        document.getElementById('register').addEventListener('click', async () => {
+            try {
+                const registration = await navigator.serviceWorker.register('sw.js');
+                document.getElementById('status').textContent = 'Service Worker注册成功';
+                console.log('Service Worker注册成功:', registration);
+            } catch (error) {
+                document.getElementById('status').textContent = '注册失败: ' + error.message;
+                console.error('Service Worker注册失败:', error);
+            }
+        });
+
+        document.getElementById('unregister').addEventListener('click', async () => {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+                await registration.unregister();
+                document.getElementById('status').textContent = 'Service Worker已注销';
+                console.log('Service Worker已注销:', registration);
+            }
+        });
+    </script>
+</body>
+</html>
