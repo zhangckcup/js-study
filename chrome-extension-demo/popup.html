@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Extension</title>
+    <style>
+        body {
+            width: 200px;
+            padding: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="tab1">图片</button>
+        <button class="tab-btn" data-tab="tab2">设置</button>
+    </div>
+    <div class="tab-content active" id="tab1">
+        <button id="actionBtn">获取页面图片</button>
+    <div style="margin-top: 12px;">
+        <div style="margin-bottom: 5px;">
+            <label for="minWidth">最小宽度:</label>
+            <input type="number" id="minWidth" placeholder="px" style="width: 60px;">
+        </div>
+        <div>
+            <label for="minHeight">最小高度:</label>
+            <input type="number" id="minHeight" placeholder="px" style="width: 60px;">
+        </div>
+    </div>
+    <button id="downloadAllBtn" style="margin-top: 10px;">下载全部图片</button>
+    <div id="imagesContainer"></div>
+    </div>
+    <div class="tab-content" id="tab2">
+        <p>设置内容将在这里显示</p>
+    </div>
+    <script>
+    // 在tab切换逻辑前添加默认tab设置
+    document.addEventListener('DOMContentLoaded', () => {
+        // 默认显示第一个tab
+        document.querySelector('.tab-btn').classList.add('active');
+        document.getElementById('tab1').classList.add('active');
+        
+        // 隐藏其他tab内容
+        document.querySelectorAll('.tab-content:not(#tab1)').forEach(tab => {
+            tab.style.display = 'none';
+        });
+    });
+    
+    // 修改后的tab切换逻辑
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            // 移除所有active类
+            document.querySelectorAll('.tab-btn, .tab-content').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            });
+            
+            // 显示当前tab内容
+            btn.classList.add('active');
+            const tabId = btn.getAttribute('data-tab');
+            const tabContent = document.getElementById(tabId);
+            tabContent.classList.add('active');
+            tabContent.style.display = 'block';
+        });
+    });
+</script>
+<script src="popup.js"></script>
+</body>
+</html>
