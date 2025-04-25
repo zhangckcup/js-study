@@ -1,20 +1,17 @@
 let allImages = [];
 
-// 确保下载按钮有事件监听器
-if(document.getElementById('downloadAllBtn')) {
-    document.getElementById('downloadAllBtn').addEventListener('click', () => {
-        if(allImages.length > 0) {
-            allImages.forEach(src => {
-                chrome.downloads.download({
-                    url: src,
-                    filename: 'Download/test/' + src.split('/').pop()
-                });
+document.getElementById('downloadAllBtn').addEventListener('click', () => {
+    if(allImages.length > 0) {
+        allImages.forEach(src => {
+            chrome.downloads.download({
+                url: src,
+                filename: 'Download/test/' + src.split('/').pop()
             });
-        } else {
-            console.log('没有可下载的图片');
-        }
-    });
-}
+        });
+    } else {
+        console.log('没有可下载的图片');
+    }
+});
 
 document.getElementById('actionBtn').addEventListener('click', () => {
     const minWidth = parseInt(document.getElementById('minWidth').value) || 0;
