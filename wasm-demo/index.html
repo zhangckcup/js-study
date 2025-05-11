@@ -56,10 +56,13 @@
             }
           }
         };
-        const { instance } = await WebAssembly.instantiate(bytes, importObject);        
 
+        const module = await WebAssembly.compile(bytes);
+        const instance = new WebAssembly.Instance(module, importObject);        
+
+        // const { instance } = await WebAssembly.instantiate(bytes, importObject);        
         console.log("WASM loaded successfully");
-        console.log("Exported functions:", instance.exports);
+        console.log("Exported functions:", instance.exports, instance.exports.add(1, 9));
       }
 
       init().catch(console.error);
