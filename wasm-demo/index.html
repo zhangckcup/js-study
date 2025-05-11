@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WASM Demo</title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <h1>WASM Demo</h1>
+    <script>
+      async function init() {
+        const response = await fetch("demo.wasm");
+        const bytes = await response.arrayBuffer();
+        const importObject = {
+          env: {
+            memory: new WebAssembly.Memory({ initial: 256 }),
+            consoleLog: (value) => console.log(value),
+          },
+          wasi_snapshot_preview1: {
+            fd_write: (fd, iovs, iovs_len, nwritten) => {
+              try {
+                if (fd === 1 || fd === 2) { // stdout or stderr
+                  const memory = new Uint8Array(importObject.env.memory.buffer);
+                  let written = 0;
+                  for (let i = 0; i < iovs_len; i++) {
+                    const ptr = iovs + i * 8;
+                    const bufPtr = new DataView(memory.buffer).getUint32(ptr, true);
+                    const bufLen = new DataView(memory.buffer).getUint32(ptr + 4, true);
+                    const buf = memory.slice(bufPtr, bufPtr + bufLen);
+                    const decoded = new TextDecoder().decode(buf);
+                    if (fd === 1) console.log(decoded);
+                    else console.error(decoded);
+                    written += buf.length;
+                  }
+                  new DataView(memory.buffer).setUint32(nwritten, written, true);
+                  return 0;
+                }
+                return -1; // Invalid file descriptor
+              } catch (error) {
+                console.error('Error in fd_write:', error);
+                return -1;
+              }
+            },
+            fd_close: (fd) => 0,
+            proc_exit: (code) => { process.exit(code); },
+            fd_read: (fd, iovs, iovs_len, nread) => 0,
+            fd_seek: (fd, offset, whence, new_offset) => 0,
+            fd_fdstat_get: (fd, stat) => 0,
+            environ_get: (environ, environ_buf) => 0,
+            environ_sizes_get: (environ_count, environ_size) => 0,
+            args_get: (argv, argv_buf) => 0,
+            args_sizes_get: (argc, argv_buf_size) => 0,
+            clock_time_get: (id, precision, time) => 0,
+            random_get: (buf, buf_len) => {
+              crypto.getRandomValues(new Uint8Array(importObject.env.memory.buffer, buf, buf_len));
+              return 0;
+            }
+          }
+        };
+        const { instance } = await WebAssembly.instantiate(bytes, importObject);        
+
+        console.log("WASM loaded successfully");
+        console.log("Exported functions:", instance.exports);
+      }
+
+      init().catch(console.error);
+    </script>
+  </body>
+</html>
